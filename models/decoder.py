@@ -52,12 +52,10 @@ class DecoderRNN(nn.Module):
         return outputs
 
     def _generate_attention_mask(self, input_lengths, input_size, output_size, batch_size):
-        range_tensor = torch.arange(0, input_size).expand(batch_size, input_size)
+        device = input_lengths.device
+        range_tensor = torch.arange(0, input_size, device=device).expand(batch_size, input_size)
         expanded_lengths = input_lengths.unsqueeze(1).expand(batch_size, input_size)
         mask = range_tensor >= expanded_lengths
         mask = mask.unsqueeze(1).expand(batch_size, output_size, input_size)
-
-        if torch.cuda.is_available():
-            mask = mask.cuda()
 
         return mask
