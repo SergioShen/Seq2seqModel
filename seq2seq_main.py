@@ -81,7 +81,7 @@ def main(args):
     output_dir = Path(train_params['output_dir'])
     if not output_dir.exists():
         output_dir.mkdir()
-    if len(list(output_dir.iterdir())) != 0 and args.train:
+    if len(list(output_dir.iterdir())) != 0 and args.train and not args.load:
         raise FileExistsError('Output dir \'%s\' is not empty' % output_dir)
 
     # Set up logger and TensorBoard writer
