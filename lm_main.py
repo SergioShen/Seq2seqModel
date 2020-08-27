@@ -117,7 +117,7 @@ def main(args):
         dataset_names = ['valid', 'test']
     for name in dataset_names:
         dataset = torchtext.data.TabularDataset(Path(train_params['dataset'][name]), 'json',
-                                                {'action_tokens': ('tokens', field)},
+                                                {train_params['dataset']['input_key']: ('tokens', field)},
                                                 filter_pred=lambda x: len(x.tokens) <= 1000)
         datasets[name] = dataset
         logger.debug('%s size: %d' % (name.capitalize(), len(dataset)))
