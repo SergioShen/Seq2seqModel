@@ -1,17 +1,12 @@
 {
   "model_params": {
-    "src_vocab_size": 4000,
-    "tgt_vocab_size": 4000,
-    "share_vocab": false,
-    "hidden_size": 512,
-    "num_encoder_layers": 3,
-    "num_decoder_layers": 3,
+    "vocab_size": 4000,
+    "hidden_size": 256,
+    "num_layers": 1,
     "input_drouput": 0.0,
-    "rnn_drouput": 0.1,
+    "rnn_drouput": 0.5,
     "rnn_cell": "lstm",
-    "weight_tying": true,
-    "bidirectional_encoder": false,
-    "use_attention": true
+    "weight_tying": true
   },
   "train_params": {
     "optimizer": "AdamW",
@@ -30,9 +25,9 @@
     "loss_function_args": {
       "ignore_index": 1
     },
-    "output_dir": "./result/example",
-    "batch_size": 64,
-    "n_epochs": 30,
+    "output_dir": "./lm_result/example",
+    "batch_size": 32,
+    "n_epochs": 50,
     "start_epoch": 1,
     "grad_clip": 0.5,
     "print_step": 100,
@@ -40,17 +35,14 @@
       "train": "./dataset/train.json",
       "valid": "./dataset/valid.json",
       "test": "./dataset/test.json",
-      "src_vocab_path": "./dataset/src_vocab.pkl",
-      "tgt_vocab_path": "./dataset/tgt_vocab.pkl",
-      "share_vocab": false,
+      "vocab_path": "./dataset/vocab.pkl",
+      "input_key": "tokens",
       "reserved_tokens": [
         "<unk>",
         "<pad>",
         "<sos>",
         "<eos>"
-      ],
-      "input_key": "src_tokens",
-      "output_key": "tgt_tokens"
+      ]
     }
   }
 }
