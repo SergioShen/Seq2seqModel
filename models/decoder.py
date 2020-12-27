@@ -38,7 +38,7 @@ class DecoderRNN(nn.Module):
         if self.use_attention:
             self.attention = Attention(hidden_size)
 
-    def forward(self, init_hidden, inputs, encoder_outputs=None, encoder_input_lengths=None):
+    def forward(self, init_hidden, inputs, encoder_outputs, encoder_input_lengths):
         inputs = self.input_dropout(inputs)
         outputs, hidden = self.rnn(inputs, init_hidden)
 
@@ -50,6 +50,18 @@ class DecoderRNN(nn.Module):
             outputs, _ = self.attention(outputs, encoder_outputs, attn_mask)
 
         return outputs
+
+    def forward_step(self, hidden, inputs, encoder_outputs, encoder_input_lengths):
+        inputs = self.input_dropout(inputs)
+        outputs, hidden = self.rnn(inputs, hidden)
+
+        if self.use_attention:
+            batch_size = encoder_outputs.size(1)
+            input_size = encoder_outputs.size(0)
+            attn_mask = self._generate_attention_mask(encoder_input_lengths, input_size, 1, batch_size)
+            outputs, _ = self.attention(outputs, encoder_outputs, attn_mask)
+
+        return outputs, hidden
 
     def _generate_attention_mask(self, input_lengths, input_size, output_size, batch_size):
         device = input_lengths.device

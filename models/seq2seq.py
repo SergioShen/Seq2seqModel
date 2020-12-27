@@ -5,6 +5,7 @@
 # @File: seq2seq
 # @Project: Seq2seqModel
 
+import torch
 import torch.nn as nn
 
 from .encoder import EncoderRNN
@@ -55,7 +56,7 @@ class Seq2seqModel(nn.Module):
         if not self.weight_tying:
             self.out.weight.data.uniform_(-init_range, init_range)
 
-    def forward(self, encoder_inputs, decoder_inputs, encoder_input_lengths=None):
+    def forward(self, encoder_inputs, decoder_inputs, encoder_input_lengths):
         encoder_embedded = self.src_embedding(encoder_inputs)
         decoder_embedded = self.tgt_embedding(decoder_inputs)
 
@@ -64,3 +65,29 @@ class Seq2seqModel(nn.Module):
         logits = self.out(decoder_outputs)
 
         return logits
+
+    def inference(self, encoder_inputs, encoder_input_lengths, max_decode_length):
+        device = encoder_inputs.device
+        batch_size = encoder_inputs.size(1)
+        assert batch_size == 1
+
+        encoder_embedded = self.src_embedding(encoder_inputs)
+        encoder_outputs, encoder_hidden = self.encoder(encoder_embedded, encoder_input_lengths)
+
+        output_sequence = list()
+        hidden = encoder_hidden
+        step_input = torch.tensor([[2]]).to(device)
+        for i in range(max_decode_length):
+            step_input_embedded = self.tgt_embedding(step_input)
+            step_outputs, hidden = self.decoder.forward_step(hidden, step_input_embedded,
+                                                             encoder_outputs, encoder_input_lengths)
+            logits = self.out(step_outputs)
+            step_top_1 = logits.argmax(dim=2).item()
+
+            if step_top_1 == 3:
+                break
+
+            output_sequence.append(step_top_1)
+            step_input = torch.tensor([[step_top_1]]).to(device)
+
+        return output_sequence, len(output_sequence)
